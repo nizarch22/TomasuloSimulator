@@ -16,6 +16,7 @@
 typedef struct Instruction
 {
 	char dest, src0, src1, op;
+	unsigned int cycleIssued, cycleExecStart, cycleExecEnd, cycleWrite;
 }Instruction;
 
 typedef struct Tomasulo
