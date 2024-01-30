@@ -6,10 +6,11 @@
 #define _CRT_SECURE_NO_WARNINGS 1
 #pragma warning(disable:4996)
 
-#define LEN_INSTRUCTIONS 4096
+#define LEN_INSTRUCTIONS 4097 // including 1 for the END_OF_INSTRUCTION flag
 #define LEN_FILE 4096*5+1
 #define LEN_CFG 23*9+1
 #define LEN_PATH 14
+#define END_OF_INSTRUCTION 15
 
 // structures
 typedef struct Instruction

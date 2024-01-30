@@ -19,7 +19,7 @@ void readFile(char* dataPath, char fileStr[LEN_FILE])
 }
 
 
-void createInstructions(char* meminPath)
+void createInstructions(const char* meminPath)
 {
 	char fileStr[LEN_FILE];
 
@@ -29,16 +29,26 @@ void createInstructions(char* meminPath)
 	unsigned int count = 0;
 	while (fileStr[count] != '\0')
 	{
-		// load one instruction
-		memcpy(&instructions[countInstruction], &fileStr[count], sizeof(Instruction));
-
-		count += 4;
-		if(fileStr[count]=='\n')
+		if (fileStr[count] == '\n')
+		{
 			count++;
+			continue;
+		}
+
+		// load one instruction
+		//count++; // skipping 0 padding
+
+		memcpy(&instructions[countInstruction].op, &fileStr[count++], sizeof(Instruction));
+		memcpy(&instructions[countInstruction].dest, &fileStr[count++], sizeof(Instruction));
+		memcpy(&instructions[countInstruction].src0, &fileStr[count++], sizeof(Instruction));
+		memcpy(&instructions[countInstruction].src1, &fileStr[count], sizeof(Instruction));
+
+		count += 5;
+
 
 		countInstruction++;
 	}
-
+	instructions[countInstruction].op = END_OF_INSTRUCTION;
 }
 
 void initTomasulo(char* cfgPath)
@@ -70,9 +80,5 @@ void initTomasulo(char* cfgPath)
 	} while (*newLinePtr != '\0');
 	sscanf(numPtr, "%d", &config[count]);
 
-	printf("Config: ");
-	for (int i = 0; i < 9; i++)
-		printf("%d,",config[i]);
-	printf("\n");
 	memcpy(&tomasulo, config, sizeof(Tomasulo));
 }
