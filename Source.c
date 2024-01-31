@@ -11,7 +11,7 @@ int main()
 	int count = 0;
 	while (instructions[count].op != END_OF_INSTRUCTION)
 	{
-		printf("%c,%c,%c,%c\n", instructions[count].dest, instructions[count].src0, instructions[count].src1, instructions[count].op);
+		printf("%c,%c,%c,%c\n", instructions[count].op, instructions[count].dest, instructions[count].src0, instructions[count].src1);
 		count++;
 	}
 

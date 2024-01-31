@@ -10,12 +10,12 @@
 #define LEN_FILE 4096*5+1
 #define LEN_CFG 23*9+1
 #define LEN_PATH 14
-#define END_OF_INSTRUCTION 15
+#define END_OF_INSTRUCTION 999
 
 // structures
 typedef struct Instruction
 {
-	char dest, src0, src1, op;
+	char op,dest, src0, src1;
 	unsigned int cycleIssued, cycleExecStart, cycleExecEnd, cycleWrite;
 }Instruction;
 

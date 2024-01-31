@@ -36,15 +36,9 @@ void createInstructions(const char* meminPath)
 		}
 
 		// load one instruction
-		//count++; // skipping 0 padding
-
-		memcpy(&instructions[countInstruction].op, &fileStr[count++], sizeof(Instruction));
-		memcpy(&instructions[countInstruction].dest, &fileStr[count++], sizeof(Instruction));
-		memcpy(&instructions[countInstruction].src0, &fileStr[count++], sizeof(Instruction));
-		memcpy(&instructions[countInstruction].src1, &fileStr[count], sizeof(Instruction));
-
-		count += 5;
-
+		count++; // skipping 0 padding
+		memcpy(&instructions[countInstruction], &fileStr[count], 4*sizeof(char));
+		count += 7; // skipping the instruction and 0 padding
 
 		countInstruction++;
 	}
