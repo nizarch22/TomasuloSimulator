@@ -1,8 +1,9 @@
 #include "stdio.h"
 #include "stdlib.h"
+#include "Input.h" // to be removed
+#include "Tomasulo.h"
 
-#include "Input.h"
-
+int cycles = 0;
 
 // testing instructions from input + testing tomasulo config loading.
 int main()
@@ -12,8 +13,17 @@ int main()
 	printf("%c,%c,%c,%c\n", in0.dest, in0.src0, in0.src1, in0.op);
 	printf("%c,%c,%c,%c\n", in1.dest, in1.src0, in1.src1, in1.op);
 
-	initTomasulo("cfg.txt");
-	printf("mul: %d, %d, %d\n", tomasulo.addUnits, tomasulo.addReserves, tomasulo.addDelay);
-	printf("div: %d, %d, %d\n", tomasulo.divUnits, tomasulo.divReserves, tomasulo.divDelay);
-	printf("mul: %d, %d, %d\n", tomasulo.mulUnits, tomasulo.mulReserves, tomasulo.mulDelay);
+	InitTomasulo("cfg.txt","memin.txt");
+	printf("add: %d, %d, %d\n", config.addUnits, config.addReserves, config.addDelay);
+	printf("mul: %d, %d, %d\n", config.mulUnits, config.mulReserves, config.mulDelay);
+	printf("div: %d, %d, %d\n", config.divUnits, config.divReserves, config.divDelay);
+
+	foo();
+	//while ()
+	//{
+	//	FETCH();
+
+
+
+	//}
 }

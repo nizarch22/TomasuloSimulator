@@ -17,16 +17,18 @@ typedef struct Instruction
 	char dest, src0, src1, op;
 }Instruction;
 
-typedef struct Tomasulo
+typedef struct Configuration
 {
 	unsigned int addUnits, mulUnits, divUnits;
 	unsigned int addReserves, mulReserves, divReserves;
 	unsigned int addDelay, mulDelay, divDelay;
-}Tomasulo;
+}Configuration;
+
 // global variables
 Instruction instructions[LEN_INSTRUCTIONS];
-Tomasulo tomasulo;
+Configuration config;
 
+// functions
 void readFile(char* dataPath, char fileStr[LEN_FILE]);
 void createInstructions(char* meminPath);
-void initTomasulo(char* cfgPath);
+void initConfig(const char* cfgPath);

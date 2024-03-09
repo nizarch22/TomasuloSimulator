@@ -19,7 +19,7 @@ void readFile(char* dataPath, char fileStr[LEN_FILE])
 }
 
 
-void createInstructions(char* meminPath)
+void createInstructions(const char* meminPath)
 {
 	char fileStr[LEN_FILE];
 
@@ -41,14 +41,15 @@ void createInstructions(char* meminPath)
 
 }
 
-void initTomasulo(char* cfgPath)
+
+void initConfig(const char* cfgPath)
 {
 	char fileStr[LEN_CFG];
-	unsigned int config[9] = { -1 };
+	unsigned int configuration[9] = { -1 };
 
 	readFile(cfgPath, fileStr);
 
-	char* numPtr, *newLinePtr, *endPtr;
+	char* numPtr, * newLinePtr, * endPtr;
 	newLinePtr = fileStr;
 	int count = 0;
 	do {
@@ -65,14 +66,11 @@ void initTomasulo(char* cfgPath)
 		endPtr = newLinePtr - 1;
 		*endPtr = '\0';
 
-		sscanf(numPtr, "%d", &config[count]);
+		sscanf(numPtr, "%d", &configuration[count]);
 		count++;
 	} while (*newLinePtr != '\0');
-	sscanf(numPtr, "%d", &config[count]);
+	sscanf(numPtr, "%d", &configuration[count]);
 
-	printf("Config: ");
-	for (int i = 0; i < 9; i++)
-		printf("%d,",config[i]);
-	printf("\n");
-	memcpy(&tomasulo, config, sizeof(Tomasulo));
+	memcpy(&config, configuration, sizeof(Configuration));
 }
+
