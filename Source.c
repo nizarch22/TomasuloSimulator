@@ -16,6 +16,8 @@ int main()
 	printf("add: %d, %d, %d\n", config.addUnits, config.addReserves, config.addDelay);
 	printf("mul: %d, %d, %d\n", config.mulUnits, config.mulReserves, config.mulDelay);
 	printf("div: %d, %d, %d\n", config.divUnits, config.divReserves, config.divDelay);
+
+	int count = 0;
 	while (instructions[count].op != END_OF_INSTRUCTION)
 	{
 		printf("%c,%c,%c,%c\n", instructions[count].op, instructions[count].dest, instructions[count].src0, instructions[count].src1);
