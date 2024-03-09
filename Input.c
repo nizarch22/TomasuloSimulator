@@ -29,16 +29,20 @@ void createInstructions(const char* meminPath)
 	unsigned int count = 0;
 	while (fileStr[count] != '\0')
 	{
-		// load one instruction
-		memcpy(&instructions[countInstruction], &fileStr[count], sizeof(Instruction));
-
-		count += 4;
-		if(fileStr[count]=='\n')
+		if (fileStr[count] == '\n')
+		{
 			count++;
+			continue;
+		}
+
+		// load one instruction
+		count++; // skipping 0 padding
+		memcpy(&instructions[countInstruction], &fileStr[count], 4*sizeof(char));
+		count += 7; // skipping the instruction and 0 padding
 
 		countInstruction++;
 	}
-
+	instructions[countInstruction].op = END_OF_INSTRUCTION;
 }
 
 
@@ -73,4 +77,3 @@ void initConfig(const char* cfgPath)
 
 	memcpy(&config, configuration, sizeof(Configuration));
 }
-
