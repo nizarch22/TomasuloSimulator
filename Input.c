@@ -18,6 +18,15 @@ void readFile(char* dataPath, char fileStr[LEN_FILE])
 	
 }
 
+void hexToNum(char* input)
+{
+	if (*input >= 48 && *input <= 57)
+		*input -= 48;
+	if (*input >= 65 && *input <= 70)
+		*input -= 55;
+	if (*input >= 97 && *input <= 102)
+		*input -= 87;
+}
 
 void createInstructions(const char* meminPath)
 {
@@ -38,6 +47,10 @@ void createInstructions(const char* meminPath)
 		// load one instruction
 		count++; // skipping 0 padding
 		memcpy(&instructions[countInstruction], &fileStr[count], 4*sizeof(char));
+		hexToNum(&instructions[countInstruction].op);
+		hexToNum(&instructions[countInstruction].dest);
+		hexToNum(&instructions[countInstruction].src0);
+		hexToNum(&instructions[countInstruction].src1);
 		count += 7; // skipping the instruction and 0 padding
 
 		countInstruction++;

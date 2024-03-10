@@ -10,7 +10,7 @@
 #define LEN_FILE 4096*5+1
 #define LEN_CFG 23*9+1
 #define LEN_PATH 14
-#define END_OF_INSTRUCTION 999
+#define END_OF_INSTRUCTION 0
 
 // structures
 typedef struct Instruction

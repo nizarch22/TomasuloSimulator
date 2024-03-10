@@ -15,7 +15,7 @@ typedef struct Station {
 	int executeCount;
 	int busy;
 	int opcode;
-	int Vj, Vk;
+	float Vj, Vk;
 	int Qj, Qk;
 }Station;
 typedef struct Registers
@@ -41,19 +41,35 @@ typedef struct Queue
 	Instruction instr;
 	struct Queue* next;
 }Queue;
+typedef struct QueueStation
+{
+	unsigned int cycleFetch;
+	Station* station;
+	struct Queue* front;
+	struct Queue* next;
+}QueueStation;
 // global variables
 int cycle;
 Table addTable;
 Table mulTable;
 Table divTable;
 Registers regs;
+CDB CDBAdd;
+CDB CDBMul;
+CDB CDBDiv;
 // Fetching
 Queue* tail;
 Queue* head;
 unsigned int instrQSize;
 unsigned int currentInstr;
 unsigned int cycles;
+//Execution
+QueueStation* headStation;
+QueueStation* tailStation;
+unsigned int stationQSize;
+
 //functions
 void InitTomasulo(const char* cfgPath, const char* meminPath);
+void DestroyTomasulo();
 //debug
 void foo();
