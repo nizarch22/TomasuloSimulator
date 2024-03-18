@@ -241,8 +241,9 @@ int InitTomasulo(const char* cfgPath, const char* meminPath)
 	if (bRead == -1)
 		return -1;
 	// read, parse and load instructions
-	createInstructions(meminPath);
-	
+	bRead=createInstructions(meminPath);
+	if (bRead == -1)
+		return -1;
 	// initialize tables and their stations
 	addTable.len = config.addReserves; 
 	mulTable.len = config.mulReserves; 

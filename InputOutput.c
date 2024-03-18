@@ -139,10 +139,11 @@ void writeTraceRegout(const char* regoutPath, float* F)
 {
 	FILE* fp;
 	fp = fopen(regoutPath, "w");
-	for (int i = 0; i < LEN_REGISTERS; i++)
+	for (int i = 0; i < LEN_REGISTERS-1; i++)
 	{
 		fprintf(fp, "%f\n", F[i]);
 	}
+	fprintf(fp, "%f", F[LEN_REGISTERS-1]);
 	fclose(fp);
 }
 

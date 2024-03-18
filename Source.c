@@ -9,18 +9,10 @@ extern int bHalt;
 // testing instructions from input + testing tomasulo config loading.
 int main(int argc, char* argv[])
 {
-	//int argc = 6;
-	//char* argv[] = { "sim.exe","cfg.txt","memin.txt","regout.txt","traceinst.txt","tracecdb.txt" };
 	if (argc != 6)
 	{
 		printf("Invalid inputs!\n");
 		return -1;
-	}
-	
-	for (int i = 0; i < 6; i++)
-	{
-		printf(argv[i]);
-		printf("\n");
 	}
 
 	int bInit;
@@ -30,7 +22,7 @@ int main(int argc, char* argv[])
 		printf("Error! Could not initialize Tomasulo.\n");
 		return -1;
 	}
-	printf("init success");
+
 	while (bHalt == 0)
 	{
 		Fetch();
@@ -38,7 +30,6 @@ int main(int argc, char* argv[])
 		Execute();
 		Write();
 		cycles++;
-
 	}
 
 	DestroyTomasulo();
