@@ -11,7 +11,7 @@
 #define MUL 4
 #define DIV 5
 #define HALT 6
-#define LEN_REGISTERS 16
+
 //structs
 typedef struct Station {
 	unsigned int executeCount;
@@ -82,7 +82,7 @@ void Write();
 
 // Output handling
 //structs
-void LogTomasulo(const char* traceInstrPath, const char* traceCDBPath);
+void LogTomasulo(const char* regoutPath, const char* traceInstrPath, const char* traceCDBPath);
 //global variables
 TraceInstr traceLogInstr[LEN_INSTRUCTIONS];
 TraceCDB traceLogCDB[LEN_INSTRUCTIONS];

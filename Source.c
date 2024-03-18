@@ -7,9 +7,14 @@ extern unsigned int cycles;
 extern int bHalt;
 
 // testing instructions from input + testing tomasulo config loading.
-int main()
+int main(int argc, char* argv[])
 {
-	InitTomasulo("cfg.txt", "memin.txt");
+	if (argc != 6)
+	{
+		printf("Invalid inputs!\n");
+	}
+	
+	InitTomasulo(argv[1], argv[2]);
 	while (bHalt == 0)
 	{
 		Fetch();
@@ -21,5 +26,5 @@ int main()
 
 	DestroyTomasulo();
 
-	LogTomasulo("traceinst.txt", "tracecdb.txt");
+	LogTomasulo(argv[3],argv[4], argv[5]);
 }

@@ -126,6 +126,17 @@ void initConfig(const char* cfgPath)
 	memcpy(&config, configuration, sizeof(Configuration));
 }
 
+void writeTraceRegout(const char* regoutPath, float* F)
+{
+	FILE* fp;
+	fp = fopen(regoutPath, "w");
+	for (int i = 0; i < LEN_REGISTERS; i++)
+	{
+		fprintf(fp, "%f\n", F[i]);
+	}
+	fclose(fp);
+}
+
 void writeTraceInstr(const char* traceInstrPath, TraceInstr* traceLogInstr)
 {
 	FILE* fp;
@@ -183,3 +194,4 @@ void writeTraceCDB(const char* traceCDBPath, TraceCDB* traceLogCDB)
 	}
 	fclose(fp);
 }
+

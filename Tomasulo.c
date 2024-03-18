@@ -454,7 +454,6 @@ void Issue()
 	}
 }
 
-
 void Execute()
 {
 	// Execute Add
@@ -464,8 +463,6 @@ void Execute()
 	// Execute Div
 	executeTable(&divTable);
 }
-
-
 
 void Write()
 {
@@ -477,18 +474,9 @@ void Write()
 	writeTable(&divTable);
 }
 
-void LogTomasulo(const char* traceInstrPath, const char* traceCDBPath)
+void LogTomasulo(const char* regoutPath,const char* traceInstrPath, const char* traceCDBPath)
 {
+	writeTraceRegout(regoutPath, regs.F);
 	writeTraceInstr(traceInstrPath, traceLogInstr);
 	writeTraceCDB(traceCDBPath, traceLogCDB);
-}
-
-void foo()
-{
-
-	for (int i = 0; i < LEN_REGISTERS; i++)
-	{
-		printf("F%d: %f\n", i, regs.F[i]);
-	}
-	LogTomasulo("traceinst.txt","tracecdb.txt");
 }

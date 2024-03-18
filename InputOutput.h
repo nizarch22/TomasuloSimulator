@@ -9,6 +9,7 @@
 #define LEN_INSTRUCTIONS 4096
 #define LEN_FILE 4096*9+1
 #define LEN_CFG 512
+#define LEN_REGISTERS 16
 
 // structures
 typedef struct Instruction
@@ -47,5 +48,6 @@ Configuration config;
 // functions
 void createInstructions(const char* meminPath);
 void initConfig(const char* cfgPath);
+void writeTraceRegout(const char* regoutPath, float* F);
 void writeTraceInstr(const char* traceInstrPath, TraceInstr* traceLogInstr);
 void writeTraceCDB(const char* traceCDBPath, TraceCDB* traceLogCDB);
