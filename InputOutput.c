@@ -55,42 +55,73 @@ void createInstructions(const char* meminPath)
 
 		countInstruction++;
 	}
-	instructions[countInstruction].op = END_OF_INSTRUCTION;
 }
 
+int getDictionaryIndex(char* value, char* dict[512], int size)
+{
+	if (value == NULL)
+		return -1;
+	for (int i = 0; i < size; i++)
+	{
+		if (!strcmp(value, dict[i]))
+		{
+			return i;
+		}
+	}
+	return -1;
+}
 
 void initConfig(const char* cfgPath)
 {
 	char fileStr[LEN_CFG];
+	char* configDict[] = { "add_nr_units", "mul_nr_units", "div_nr_units", "add_nr_reservation", "mul_nr_reservation", "div_nr_reservation", "add_delay", "mul_delay", "div_delay" };
 	unsigned int configuration[9] = { -1 };
 
 	readFile(cfgPath, fileStr);
+	if (fileStr == NULL)
+		return;
 
+	char* varStr, * endVarStr;
 	char* numPtr, * newLinePtr, * endPtr;
 	newLinePtr = fileStr;
 	int count = 0;
+	int index = 0;
+	varStr = NULL;
 	do {
 		numPtr = strchr(newLinePtr, '=');
 		if (numPtr == NULL)
 			break;
+		// pointing to the start of the parameter string
+		varStr = &newLinePtr[0];
+		// making varStr readable as a parameter string.
+		endVarStr = numPtr-1;
+		while (*endVarStr == ' ')
+			endVarStr--;
+		endVarStr++;
+		*endVarStr = '\0';
+
+		// advancing towards the number
 		numPtr++;
 
+		// we point newLinePtr point to the end of line
 		newLinePtr = strchr(numPtr, '\n');
 		if (newLinePtr == NULL)
 			break;
 		newLinePtr++;
-
+		// skip over empty lines
+		while (*newLinePtr == '\n')
+			newLinePtr++;
+		// making numPtr readable as a number (value).
 		endPtr = newLinePtr - 1;
 		*endPtr = '\0';
-
-		sscanf(numPtr, "%d", &configuration[count]);
+		
+		// finding index of parameter to write its value to config
+		index = getDictionaryIndex(varStr, configDict, 9);
+		if (index == -1)
+			return;
+		sscanf(numPtr, "%d", &configuration[index]);
 		count++;
 	} while (*newLinePtr != '\0');
-	if (numPtr != NULL)
-	{
-		sscanf(numPtr, "%d", &configuration[count]);
-	}
-	
 
 	memcpy(&config, configuration, sizeof(Configuration));
 }
@@ -120,7 +151,7 @@ void writeTraceInstr(const char* traceInstrPath, TraceInstr* traceLogInstr)
 		if (i != 0)
 			fprintf(fp, "\n");
 
-		fprintf(fp, "0%X%X%X%X000 %d %s%d %d %d %d %d", instr.op, instr.dest, instr.src0, instr .src1, tl.pc, prefix[(opcode - 2)], num, tl.cycleIssue, tl.cycleExStart, tl.cycleExEnd, tl.cycleWriteCDB);
+		fprintf(fp, "0%X%X%X%X000\t%d\t%s%d\t%d\t%d\t%d\t%d", instr.op, instr.dest, instr.src0, instr .src1, tl.pc, prefix[(opcode - 2)], num, tl.cycleIssue, tl.cycleExStart, tl.cycleExEnd, tl.cycleWriteCDB);
 	}
 	fclose(fp);
 }
@@ -135,7 +166,7 @@ void writeTraceCDB(const char* traceCDBPath, TraceCDB* traceLogCDB)
 
 
 	fp = fopen(traceCDBPath, "w");
-	for (int i = 0; i < 3*LEN_INSTRUCTIONS; i++)
+	for (int i = 0; i < LEN_INSTRUCTIONS; i++)
 	{
 		tl = traceLogCDB[i];
 		if (tl.tag == 0)
@@ -148,7 +179,7 @@ void writeTraceCDB(const char* traceCDBPath, TraceCDB* traceLogCDB)
 		if (i != 0)
 			fprintf(fp, "\n");
 
-		fprintf(fp, "%d %d %s %d %s%d", tl.cycleWriteCDB, tl.pc, prefix[(opcode - 2)], tl.data, prefix[(opcode - 2)], num);
+		fprintf(fp, "%d\t%d\t%s\t%d\t%s%d", tl.cycleWriteCDB, tl.pc, prefix[(opcode - 2)], tl.data, prefix[(opcode - 2)], num);
 	}
 	fclose(fp);
 }

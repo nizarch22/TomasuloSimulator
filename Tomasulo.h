@@ -1,10 +1,11 @@
 #pragma once
+#include "InputOutput.h"
 #include "stdio.h"
 #include "stdlib.h"
 #include "malloc.h"
 
 // definitions
-#define QUEUE_LEN 16 
+#define LEN_QUEUE 16
 #define ADD 2
 #define SUB 3
 #define MUL 4
@@ -18,8 +19,8 @@ typedef struct Station {
 	int opcode;
 	float Vj, Vk;
 	int Qj, Qk;
-	unsigned int cycleIssue;
-	unsigned int traceIndexInstr;
+	unsigned int cycleIssue; // Issue-Execute handling variable
+	unsigned int traceIndexInstr; // logging variable
 }Station;
 typedef struct Registers
 {
@@ -38,18 +39,18 @@ typedef struct Table
 	unsigned int len;
 	unsigned int delay;
 	unsigned int freeStationCount;
+	unsigned int freeUnitCount;
 	CDB cdb;
 }Table;
 typedef struct Queue
 {
 	unsigned int pc; // logging variable
-	unsigned int cycleFetch;
+	unsigned int cycleFetch; // Fetch-Issue handling variable
 	Instruction instr;
 	struct Queue* next;
 }Queue;
 typedef struct QueueStation
 {
-	unsigned int cycleFetch;
 	Station* station;
 	struct QueueStation* front;
 	struct QueueStation* next;
@@ -78,14 +79,12 @@ void Fetch();
 void Issue();
 void Execute();
 void Write();
-//debug
-void foo();
 
 // Output handling
 //structs
 void LogTomasulo(const char* traceInstrPath, const char* traceCDBPath);
 //global variables
 TraceInstr traceLogInstr[LEN_INSTRUCTIONS];
-TraceCDB traceLogCDB[LEN_INSTRUCTIONS * 3];
+TraceCDB traceLogCDB[LEN_INSTRUCTIONS];
 unsigned int traceIndexInstr;
 unsigned int traceIndexCDB;

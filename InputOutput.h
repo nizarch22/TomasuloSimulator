@@ -7,10 +7,8 @@
 #pragma warning(disable:4996)
 
 #define LEN_INSTRUCTIONS 4096
-#define LEN_FILE 4096*5+1
-#define LEN_CFG 23*9+1
-#define LEN_PATH 14
-#define END_OF_INSTRUCTION 0
+#define LEN_FILE 4096*9+1
+#define LEN_CFG 512
 
 // structures
 typedef struct Instruction
@@ -42,12 +40,11 @@ typedef struct TraceCDB
 	unsigned int tag; //tag(Instr),cdbname(CDB)
 }TraceCDB;
 // global variables
-Instruction instructions[LEN_INSTRUCTIONS]; // including 1 for the END_OF_INSTRUCTION flag
+Instruction instructions[LEN_INSTRUCTIONS];
 Configuration config;
 
 
 // functions
-void readFile(const char* dataPath, char fileStr[LEN_FILE]);
 void createInstructions(const char* meminPath);
 void initConfig(const char* cfgPath);
 void writeTraceInstr(const char* traceInstrPath, TraceInstr* traceLogInstr);
