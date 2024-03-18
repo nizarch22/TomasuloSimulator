@@ -2,11 +2,10 @@
 #include "stdlib.h"
 #include "Tomasulo.h"
 
-
 extern unsigned int cycles;
 extern int bHalt;
 
-// testing instructions from input + testing tomasulo config loading.
+
 int main(int argc, char* argv[])
 {
 	if (argc != 6)

@@ -62,6 +62,7 @@ int createInstructions(const char* meminPath)
 
 		countInstruction++;
 	}
+	return 0;
 }
 
 int getDictionaryIndex(char* value, char* dict[512], int size)
@@ -88,7 +89,7 @@ int initConfig(const char* cfgPath)
 	if (bRead == -1)
 		return -1;
 	if (fileStr == NULL)
-		return;
+		return -1;
 
 	char* varStr, * endVarStr;
 	char* numPtr, * newLinePtr, * endPtr;
@@ -133,6 +134,7 @@ int initConfig(const char* cfgPath)
 	} while (*newLinePtr != '\0');
 
 	memcpy(&config, configuration, sizeof(Configuration));
+	return 0;
 }
 
 void writeTraceRegout(const char* regoutPath, float* F)

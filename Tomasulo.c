@@ -254,9 +254,6 @@ int InitTomasulo(const char* cfgPath, const char* meminPath)
 	addTable.freeUnitCount = config.addUnits;
 	mulTable.freeUnitCount = config.mulUnits;
 	divTable.freeUnitCount = config.divUnits;
-	//initialize unit busy array memory
-
-
 	// intitialize stations memory
 	addTable.stations = (Station*)calloc(config.addReserves, sizeof(Station));
 	mulTable.stations = (Station*)calloc(config.mulReserves, sizeof(Station));
@@ -296,6 +293,8 @@ int InitTomasulo(const char* cfgPath, const char* meminPath)
 	traceIndexInstr = 0;
 	//initialize traceLogCDB index
 	traceIndexCDB = 0;
+
+	return 0;
 }
 
 void DestroyTomasulo()
