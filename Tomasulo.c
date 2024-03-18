@@ -234,10 +234,12 @@ void writeTable(Table* table)
 	}
 }
 
-void InitTomasulo(const char* cfgPath, const char* meminPath)
+int InitTomasulo(const char* cfgPath, const char* meminPath)
 {
 	// intialize config parameters
-	initConfig(cfgPath);
+	int bRead = initConfig(cfgPath);
+	if (bRead == -1)
+		return -1;
 	// read, parse and load instructions
 	createInstructions(meminPath);
 	

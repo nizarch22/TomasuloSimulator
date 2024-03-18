@@ -1,12 +1,17 @@
 #include "InputOutput.h"
 
-void readFile(const char* dataPath, char fileStr[LEN_FILE])
+int readFile(const char* dataPath, char fileStr[LEN_FILE])
 {
 	FILE* fp;
 	char c;
 	int count = 0;
 
 	fp = fopen(dataPath, "r");
+	if (fp == NULL)
+	{
+		printf("Failed to read file! %s\n", dataPath);
+		return -1;
+	}
 	while ((c = fgetc(fp)) != EOF)
 	{
 		fileStr[count] = c;
@@ -15,7 +20,7 @@ void readFile(const char* dataPath, char fileStr[LEN_FILE])
 	fclose(fp);
 
 	fileStr[count] = '\0';
-	
+	return 0;
 }
 
 void hexToNum(char* input)
@@ -28,11 +33,13 @@ void hexToNum(char* input)
 		*input -= 87;
 }
 
-void createInstructions(const char* meminPath)
+int createInstructions(const char* meminPath)
 {
 	char fileStr[LEN_FILE];
-
-	readFile(meminPath, fileStr);
+	
+	int bRead = readFile(meminPath, fileStr);
+	if (bRead == -1)
+		return -1;
 
 	unsigned int countInstruction = 0;
 	unsigned int count = 0;
@@ -71,13 +78,15 @@ int getDictionaryIndex(char* value, char* dict[512], int size)
 	return -1;
 }
 
-void initConfig(const char* cfgPath)
+int initConfig(const char* cfgPath)
 {
 	char fileStr[LEN_CFG];
 	char* configDict[] = { "add_nr_units", "mul_nr_units", "div_nr_units", "add_nr_reservation", "mul_nr_reservation", "div_nr_reservation", "add_delay", "mul_delay", "div_delay" };
 	unsigned int configuration[9] = { -1 };
 
-	readFile(cfgPath, fileStr);
+	int bRead = readFile(cfgPath, fileStr);
+	if (bRead == -1)
+		return -1;
 	if (fileStr == NULL)
 		return;
 
@@ -118,7 +127,7 @@ void initConfig(const char* cfgPath)
 		// finding index of parameter to write its value to config
 		index = getDictionaryIndex(varStr, configDict, 9);
 		if (index == -1)
-			return;
+			return -1;
 		sscanf(numPtr, "%d", &configuration[index]);
 		count++;
 	} while (*newLinePtr != '\0');

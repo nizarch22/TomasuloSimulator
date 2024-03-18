@@ -73,7 +73,7 @@ QueueStation* tailStation;
 unsigned int stationQSize;
 
 //functions
-void InitTomasulo(const char* cfgPath, const char* meminPath);
+int InitTomasulo(const char* cfgPath, const char* meminPath);
 void DestroyTomasulo();
 void Fetch();
 void Issue();

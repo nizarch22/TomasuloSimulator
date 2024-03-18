@@ -46,8 +46,8 @@ Configuration config;
 
 
 // functions
-void createInstructions(const char* meminPath);
-void initConfig(const char* cfgPath);
+int createInstructions(const char* meminPath);
+int initConfig(const char* cfgPath);
 void writeTraceRegout(const char* regoutPath, float* F);
 void writeTraceInstr(const char* traceInstrPath, TraceInstr* traceLogInstr);
 void writeTraceCDB(const char* traceCDBPath, TraceCDB* traceLogCDB);
