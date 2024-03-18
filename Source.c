@@ -1,8 +1,11 @@
 #include "stdio.h"
 #include "stdlib.h"
-#include "Input.h" // to be removed
+#include "InputOutput.h" // to be removed
 #include "Tomasulo.h"
 
+
+extern unsigned int cycles;
+extern int bHalt;
 
 // testing instructions from input + testing tomasulo config loading.
 int main()
@@ -23,12 +26,16 @@ int main()
 		printf("%X,%X,%X,%X\n", instructions[count].op, instructions[count].dest, instructions[count].src0, instructions[count].src1);
 		count++;
 	}
-	foo();
-	
-	//while ()
-	//{
-	//	FETCH();
-	//
+	while (bHalt == 0)
+	{
+		Fetch();
+		Issue();
+		Execute();
+		Write();
+		cycles++;
+	}
 
 	DestroyTomasulo();
+
+	LogTomasulo("traceinst.txt", "tracecdb.txt");
 }

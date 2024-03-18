@@ -127,17 +127,19 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="Input.c" />
+    <ClCompile Include="InputOutput.c" />
     <ClCompile Include="Source.c" />
     <ClCompile Include="Tomasulo.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Input.h" />
+    <ClInclude Include="InputOutput.h" />
     <ClInclude Include="Tomasulo.h" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="cfg.txt" />
     <Text Include="memin.txt" />
+    <Text Include="tracecdb.txt" />
+    <Text Include="traceinst.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

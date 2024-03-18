@@ -1,6 +1,6 @@
-#include "Input.h"
+#include "InputOutput.h"
 
-void readFile(char* dataPath, char fileStr[LEN_FILE])
+void readFile(const char* dataPath, char fileStr[LEN_FILE])
 {
 	FILE* fp;
 	char c;
@@ -86,7 +86,69 @@ void initConfig(const char* cfgPath)
 		sscanf(numPtr, "%d", &configuration[count]);
 		count++;
 	} while (*newLinePtr != '\0');
-	sscanf(numPtr, "%d", &configuration[count]);
+	if (numPtr != NULL)
+	{
+		sscanf(numPtr, "%d", &configuration[count]);
+	}
+	
 
 	memcpy(&config, configuration, sizeof(Configuration));
+}
+
+void writeTraceInstr(const char* traceInstrPath, TraceInstr* traceLogInstr)
+{
+	FILE* fp;
+	TraceInstr tl;
+	Instruction instr;
+	char *prefix[4] = {"ADD","ADD", "MUL", "DIV"};
+	char opcode;
+	unsigned int num;
+
+
+	fp = fopen(traceInstrPath, "w");
+	for (int i = 0; i < LEN_INSTRUCTIONS; i++)
+	{
+		tl = traceLogInstr[i];
+		instr = tl.instr;
+		if (tl.tag == 0)
+		{
+			break;
+		}
+		opcode = tl.tag & 7;
+		num = tl.tag >> 3;
+		
+		if (i != 0)
+			fprintf(fp, "\n");
+
+		fprintf(fp, "0%X%X%X%X000 %d %s%d %d %d %d %d", instr.op, instr.dest, instr.src0, instr .src1, tl.pc, prefix[(opcode - 2)], num, tl.cycleIssue, tl.cycleExStart, tl.cycleExEnd, tl.cycleWriteCDB);
+	}
+	fclose(fp);
+}
+
+void writeTraceCDB(const char* traceCDBPath, TraceCDB* traceLogCDB)
+{
+	FILE* fp;
+	TraceCDB tl;
+	char* prefix[4] = { "ADD","ADD", "MUL", "DIV" };
+	char opcode;
+	unsigned int num;
+
+
+	fp = fopen(traceCDBPath, "w");
+	for (int i = 0; i < 3*LEN_INSTRUCTIONS; i++)
+	{
+		tl = traceLogCDB[i];
+		if (tl.tag == 0)
+		{
+			break;
+		}
+		opcode = tl.tag & 7;
+		num = tl.tag >> 3;
+
+		if (i != 0)
+			fprintf(fp, "\n");
+
+		fprintf(fp, "%d %d %s %d %s%d", tl.cycleWriteCDB, tl.pc, prefix[(opcode - 2)], tl.data, prefix[(opcode - 2)], num);
+	}
+	fclose(fp);
 }

@@ -10,18 +10,21 @@
 #define MUL 4
 #define DIV 5
 #define HALT 6
+#define LEN_REGISTERS 16
 //structs
 typedef struct Station {
-	int executeCount;
+	unsigned int executeCount;
 	int busy;
 	int opcode;
 	float Vj, Vk;
 	int Qj, Qk;
+	unsigned int cycleIssue;
+	unsigned int traceIndexInstr;
 }Station;
 typedef struct Registers
 {
-	unsigned int tag[16];
-	float F[16];
+	unsigned int tag[LEN_REGISTERS];
+	float F[LEN_REGISTERS];
 }Registers;
 typedef struct CDB
 {
@@ -33,10 +36,13 @@ typedef struct Table
 {
 	Station* stations;
 	unsigned int len;
+	unsigned int delay;
 	unsigned int freeStationCount;
+	CDB cdb;
 }Table;
 typedef struct Queue
 {
+	unsigned int pc; // logging variable
 	unsigned int cycleFetch;
 	Instruction instr;
 	struct Queue* next;
@@ -45,24 +51,21 @@ typedef struct QueueStation
 {
 	unsigned int cycleFetch;
 	Station* station;
-	struct Queue* front;
-	struct Queue* next;
+	struct QueueStation* front;
+	struct QueueStation* next;
 }QueueStation;
 // global variables
-int cycle;
+unsigned int cycles;
 Table addTable;
 Table mulTable;
 Table divTable;
 Registers regs;
-CDB CDBAdd;
-CDB CDBMul;
-CDB CDBDiv;
+int bHalt;
 // Fetching
 Queue* tail;
 Queue* head;
 unsigned int instrQSize;
 unsigned int currentInstr;
-unsigned int cycles;
 //Execution
 QueueStation* headStation;
 QueueStation* tailStation;
@@ -71,5 +74,18 @@ unsigned int stationQSize;
 //functions
 void InitTomasulo(const char* cfgPath, const char* meminPath);
 void DestroyTomasulo();
+void Fetch();
+void Issue();
+void Execute();
+void Write();
 //debug
 void foo();
+
+// Output handling
+//structs
+void LogTomasulo(const char* traceInstrPath, const char* traceCDBPath);
+//global variables
+TraceInstr traceLogInstr[LEN_INSTRUCTIONS];
+TraceCDB traceLogCDB[LEN_INSTRUCTIONS * 3];
+unsigned int traceIndexInstr;
+unsigned int traceIndexCDB;

@@ -18,7 +18,7 @@
     <ClCompile Include="Source.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Input.c">
+    <ClCompile Include="InputOutput.c">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Tomasulo.c">
@@ -26,7 +26,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Input.h">
+    <ClInclude Include="InputOutput.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Tomasulo.h">
@@ -36,5 +36,7 @@
   <ItemGroup>
     <Text Include="memin.txt" />
     <Text Include="cfg.txt" />
+    <Text Include="tracecdb.txt" />
+    <Text Include="traceinst.txt" />
   </ItemGroup>
 </Project>

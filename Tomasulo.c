@@ -1,4 +1,4 @@
-#include "Input.h"
+#include "InputOutput.h"
 #include "Tomasulo.h"
 
 #include "stdio.h"
@@ -11,35 +11,6 @@ void initQueue()
 	tail = NULL;
 	instrQSize = 0;
 }
-void initQueueStation()
-{
-	headStation = NULL;
-	tailStation = NULL;
-	stationQSize = 0;
-}
-
-void enqueueStation(Station* st)
-{
-	QueueStation* newcomer = (QueueStation*)malloc(sizeof(QueueStation));
-	newcomer->station = st;
-	newcomer->next = NULL;
-	
-
-	if (tailStation != NULL)
-	{
-		tailStation->next = newcomer;
-		newcomer->front = tailStation;
-	}
-	tailStation = newcomer;
-
-	if (stationQSize == 0)
-	{
-		newcomer->front = NULL;
-		headStation = newcomer;
-	}
-	stationQSize++;
-}
-
 void enqueue(Instruction instr)
 {
 	if (instrQSize >= QUEUE_LEN)
@@ -57,26 +28,6 @@ void enqueue(Instruction instr)
 		head = newcomer;
 	instrQSize++;
 }
-
-Station* dequeueStation()
-{
-	QueueStation* temp = headStation;
-	if (headStation->next != NULL)
-	{
-		headStation = headStation->next;
-	}
-	else
-	{
-		headStation = NULL;
-	}
-
-	Station* val = temp->station;
-	free(temp);
-
-	stationQSize--;
-	return val;
-}
-
 Instruction dequeue()
 {
 	Queue* temp = head;
@@ -96,29 +47,76 @@ Instruction dequeue()
 	return val;
 }
 
+void initQueueStation()
+{
+	headStation = NULL;
+	tailStation = NULL;
+	stationQSize = 0;
+}
+void enqueueStation(Station* st)
+{
+	QueueStation* newcomer = (QueueStation*)malloc(sizeof(QueueStation));
+	newcomer->station = st;
+	newcomer->next = NULL;
+
+
+	if (tailStation != NULL)
+	{
+		tailStation->next = newcomer;
+		newcomer->front = tailStation;
+	}
+	tailStation = newcomer;
+
+	if (stationQSize == 0)
+	{
+		newcomer->front = NULL;
+		headStation = newcomer;
+	}
+	stationQSize++;
+}
+// remove dequeueStation
+Station* dequeueStation()
+{
+	QueueStation* temp = headStation;
+	if (headStation->next != NULL)
+	{
+		headStation = headStation->next;
+	}
+	else
+	{
+		headStation = NULL;
+	}
+
+	Station* val = temp->station;
+	free(temp);
+
+	stationQSize--;
+	return val;
+}
 QueueStation* popStation(QueueStation* current)
 {
 	if (current == NULL)
-		return;
+		return NULL;
+	// connect front and back
 	QueueStation* front = current->front;
 	QueueStation* back = current->next;
 	if(front!=NULL)
 		front->next = back;
 	if(back!=NULL)
 		back->front = front;
-	QueueStation* temp = current;
-	if (stationQSize == 1)
+
+	// make sure not to delete the head
+	if (current == headStation)
 	{
 		headStation = NULL;
-		current = NULL;
 	}
 	else
 	{
-		current = back;
+		free(current);
 	}
 	stationQSize--;
-	free(temp);
-	return current;
+	return back;
+
 }
 
 void InitTomasulo(const char* cfgPath, const char* meminPath)
@@ -135,13 +133,21 @@ void InitTomasulo(const char* cfgPath, const char* meminPath)
 	addTable.freeStationCount = config.addReserves;
 	mulTable.freeStationCount = config.mulReserves;
 	divTable.freeStationCount = config.divReserves;
-
+	// intitialize stations memory
 	addTable.stations = (Station*)calloc(config.addReserves, sizeof(Station));
 	mulTable.stations = (Station*)calloc(config.mulReserves, sizeof(Station));
 	divTable.stations = (Station*)calloc(config.divReserves, sizeof(Station));
+	// initialize the 3 CDBs
+	addTable.cdb.busy = 0;
+	mulTable.cdb.busy = 0;
+	divTable.cdb.busy = 0;
+	// initialize the delay values
+	addTable.delay = config.addDelay;
+	mulTable.delay = config.mulDelay;
+	divTable.delay = config.divDelay;
 
 	// intitialize registers
-	for (int i = 0; i < 16; i++)
+	for (int i = 0; i < LEN_REGISTERS; i++)
 	{
 		regs.F[i] = (float)i;
 		regs.tag[i] = 0; // empty tag
@@ -159,10 +165,13 @@ void InitTomasulo(const char* cfgPath, const char* meminPath)
 	//initialize cycles counter
 	cycles = 0;
 
-	//initialize the 3 CDBs
-	CDBAdd.busy = 0;
-	CDBMul.busy = 0;
-	CDBDiv.busy = 0;
+	//initialize Halt flag, bHalt
+	bHalt = 0;
+
+	//initialize traceLogInstr index
+	traceIndexInstr = 0;
+	//initialize traceLogCDB index
+	traceIndexCDB = 0;
 }
 
 void DestroyTomasulo()
@@ -189,24 +198,32 @@ void Fetch()
 	if (head != NULL)
 	{
 		if (head->instr.op == HALT)
+		{
+			// check if all instructions are finished
+			if (addTable.freeStationCount == addTable.len && mulTable.freeStationCount == mulTable.len && divTable.freeStationCount == divTable.len)
+			{
+				bHalt = 1;
+			}
 			return;
+		}
 	}
 	// load 2 instructions onto instruction queue
 	if (instrQSize < QUEUE_LEN && currentInstr < LEN_INSTRUCTIONS)
 	{
 		enqueue(instructions[currentInstr]);
 		tail->cycleFetch = cycles;
+		tail->pc = currentInstr;
 
 		// HALT exception handling
 		if (tail->instr.op == HALT)
 			return;
-
 		currentInstr++;
 	}
 	if (instrQSize < QUEUE_LEN && currentInstr < LEN_INSTRUCTIONS)
 	{
 		enqueue(instructions[currentInstr]);
 		tail->cycleFetch = cycles;
+		tail->pc = currentInstr;
 
 		currentInstr++;
 	}
@@ -215,10 +232,11 @@ void Fetch()
 void Issue()
 {	
 	int stationType;
-	Table temp = { 0 };
+	Table* temp = NULL;
 	Station tempStation;
 	Instruction instr;
 	unsigned int tag;
+	unsigned int pc;
 
 	//search for available station
 	for (int j = 0; j < 2; j++)
@@ -233,42 +251,43 @@ void Issue()
 		if (head->instr.op == HALT)
 			break;
 		stationType = head->instr.op;
-
 		switch (stationType)
 		{
 		case 2:
-			temp = addTable;
+			temp = &addTable;
 			break;
 		case 3:
-			temp = addTable;
+			temp = &addTable;
 			break;
 		case 4:
-			temp = mulTable;
+			temp = &mulTable;
 			break;
 		case 5:
-			temp = divTable;
+			temp = &divTable;
 			break;
 		default:
 			break;
 		}
-		if (temp.len == 0)
+		if (temp == NULL)
 			break;
 
-		if (temp.freeStationCount == 0)
+		if (temp->freeStationCount == 0)
 			break;
-		for (int i = 0; i < temp.len;i++)
+		for (unsigned int i = 0; i < temp->len;i++)
 		{
-			if (temp.stations[i].busy != 0)
+			if (temp->stations[i].busy != 0)
 				continue;
 
+			// dequeue instruction from instructionQueue and place into a station.
+			pc = head->pc; // Logging - instr
 			instr = dequeue();
-			temp.freeStationCount--;
 
-			// load all busy,op, executeCount - all station values. 
+			// load all busy,op, executeCount, cycleIssue, traceIndexInstr(Logging) - all station values. 
 			tempStation.busy = 1;
 			tempStation.opcode = stationType;
 			tempStation.executeCount = 0;
-
+			tempStation.cycleIssue = cycles;
+			tempStation.traceIndexInstr = traceIndexInstr; // Logging - instr
 			//retrieve Qjk,Vjk values.
 			tempStation.Qj = regs.tag[instr.src0];
 			tempStation.Qk = regs.tag[instr.src1];
@@ -276,174 +295,202 @@ void Issue()
 			if (tempStation.Qj == 0)
 				tempStation.Vj = regs.F[instr.src0];
 			else
-				enqueueStation(&temp.stations[i]);
+				enqueueStation(&(temp->stations[i]));
 
 			if (tempStation.Qk == 0)
 				tempStation.Vk = regs.F[instr.src1];
 			else
-				enqueueStation(&temp.stations[i]);
+				enqueueStation(&(temp->stations[i]));
 			// update stations array - done with tempStation
-			temp.stations[i] = tempStation;
+			temp->stations[i] = tempStation;
 
 			//update register tag
-			tag = i;
+			tag = i+1; 
 			tag <<= 3;
 			tag += ((unsigned int)stationType);
 			regs.tag[instr.dest] = tag;
+
+			// declaring this station as busy (not free) makes our freeStationCount drop.
+			temp->freeStationCount--;
+
+			// Logging - instr
+			traceLogInstr[traceIndexInstr].cycleIssue = cycles;
+			traceLogInstr[traceIndexInstr].instr = instr;
+			traceLogInstr[traceIndexInstr].pc = pc;
+			traceLogInstr[traceIndexInstr].tag = tag;
+
+			traceIndexInstr++;
 
 			break;
 		}
 	}
 }
 
-
-void Execute()
+void executeTable(Table* table)
 {
 	Station* st;
-	for (int i = 0; i < config.addReserves;i++)
+	for (unsigned int i = 0; i < table->len; i++)
 	{
-		st = &addTable.stations[i];
+		st = &(table->stations[i]);
+		if (cycles == st->cycleIssue)
+			continue;
 		if (st->busy == 1 && st->Qj == 0 && st->Qk == 0)
+		{
+			//Logging - instr
+			if (st->executeCount == 0)
+			{
+				traceLogInstr[st->traceIndexInstr].cycleExStart = cycles;
+				traceLogInstr[st->traceIndexInstr].cycleExEnd = cycles + table->delay- 1;
+			}
+
 			st->executeCount++;
-	}
-	for (int i = 0; i < config.mulReserves; i++)
-	{
-		st = &mulTable.stations[i];
-		if (st->busy == 1 && st->Qj == 0 && st->Qk == 0)
-			st->executeCount++;
-	}
-	for (int i = 0; i < config.divReserves; i++)
-	{
-		st = &divTable.stations[i];
-		if (st->busy == 1 && st->Qj == 0 && st->Qk == 0)
-			st->executeCount++;
+		}
 	}
 }
-
-void Write()
+void Execute()
 {
+	// Execute Add
+	executeTable(&addTable);
+	// Execute Mul
+	executeTable(&mulTable);
+	// Execute Div
+	executeTable(&divTable);
+}
+
+void writeTable(Table* table)
+{
+	// Write to CBD
 	Station* st;
-	for (int i = 0; i < config.addReserves; i++)
+	for (unsigned int i = 0; i < table->len; i++)
 	{
-		st = &addTable.stations[i];
-		if (st->executeCount >= config.addDelay)
+		st = &(table->stations)[i];
+		if (st->executeCount > table->delay)
 		{
-			if (CDBAdd.busy == 0)
+			if (table->cdb.busy == 0)
 			{
 				// Using this bus - busy
-				CDBAdd.busy = 1;
-				// Filling the data 
-				CDBAdd.data = st->Vj + st->Vk;
-
+				table->cdb.busy = 1;
+				// Filling the data
+				
+				switch (st->opcode)
+				{
+				case 2: // ADD
+					table->cdb.data = st->Vj + st->Vk;
+					break;
+				case 3: // SUB
+					table->cdb.data = st->Vj - st->Vk;
+					break;
+				case 4: // MUL
+					table->cdb.data = st->Vj * st->Vk;
+					break;
+				case 5: // DIV
+					table->cdb.data = st->Vj / st->Vk;
+					break;
+				default:
+					break;
+				}
 				// Loading the tag
-				CDBAdd.tag = i;
-				CDBAdd.tag <<= 3;
-				CDBAdd.tag += st->opcode;
+				table->cdb.tag = i+1;
+				table->cdb.tag <<= 3;
+				table->cdb.tag += st->opcode;
+
+				// Logging - CDB
+				traceLogCDB[traceIndexCDB].cycleWriteCDB = cycles;
+				traceLogCDB[traceIndexCDB].data = (int) table->cdb.data;
+				traceLogCDB[traceIndexCDB].pc = traceLogInstr[st->traceIndexInstr].pc;
+				traceLogCDB[traceIndexCDB].tag = table->cdb.tag;
+				traceIndexCDB++;
+
+				// Logging - Instr
+				traceLogInstr[st->traceIndexInstr].cycleWriteCDB = cycles;
 			}
 			break;
 		}
 	}
 
-	//CDBAdd - stations
+	//Add - write Vjk to issued stations waiting for Vjk
 	QueueStation* temp = headStation;
 	while (temp != NULL)
 	{
+		if (table->cdb.tag == 0)
+			break;
 		st = temp->station;
 		// check both src register tags
-		if (st->Qj == CDBAdd.tag)
+		if (st->Qj == table->cdb.tag)
 		{
-			st->Vj = CDBAdd.data;
+			st->Vj = table->cdb.data;
 			temp = popStation(temp);
+			st->Qj = 0;
 		}
-		if (st->Qk == CDBAdd.tag)
+		if (st->Qk == table->cdb.tag)
 		{
-			st->Vk = CDBAdd.data;
+			st->Vk = table->cdb.data;
 			temp = popStation(temp);
+			st->Qk = 0;
 		}
 		if (temp == NULL)
 			break;
 		temp = temp->next;
 	}
-	//CDBAdd - registers
-	for (int i = 0; i < 16; i++)
+	//Add - write to register evaluator. And empty the stations (+the CDB) - as we are done with them.
+	for (int i = 0; i < LEN_REGISTERS; i++)
 	{
-		if (regs.tag[i] == CDBAdd.tag && CDBAdd.tag!=0)
+		if (regs.tag[i] == table->cdb.tag && table->cdb.tag != 0)
 		{
 			// update register
-			regs.F[i] = CDBAdd.data;
+			regs.F[i] = table->cdb.data;
 			regs.tag[i] = 0;
 
-			// Clear station
-			st = &addTable.stations[(CDBAdd.tag >> 3)];
-			st->busy = 0;
-			st->executeCount = 0;
-			st->opcode = 0;
-			st->Qj = 0;
-			st->Qk = 0;
-			st->Vj = 0;
-			st->Vk = 0;
-
-			// CDB is done
-			CDBAdd.busy = 0;
-			CDBAdd.tag = 0;
+			break;
 		}
 	}
-	// do the same for the rest of Mul and Div
-	for (int i = 0; i < config.mulReserves; i++)
+
+	// Clear CDB, station after writing is finished (to register and to stations that needed the value).
+	// Also make it known that this station is now free.
+	if (table->cdb.tag != 0)
 	{
-		st = &mulTable.stations[i];
-		if (st->executeCount >= config.mulDelay)
-		{
-			if (CDBMul.busy == 0)
-			{
-				// Using this bus - busy
-				CDBMul.busy = 1;
-				// Filling the data 
-				CDBMul.data = st->Vj * st->Vk;
+		// Clear station
+		st = &table->stations[(table->cdb.tag >> 3) - 1];
+		st->busy = 0;
+		st->executeCount = 0;
+		st->cycleIssue = 0;
+		st->opcode = 0;
+		st->Qj = 0;
+		st->Qk = 0;
+		st->Vj = 0;
+		st->Vk = 0;
+		st->traceIndexInstr = 0;
+		table->freeStationCount++;
 
-				// Loading the tag
-				CDBMul.tag = i;
-				CDBMul.tag <<= 3;
-				CDBMul.tag += st->opcode;
-			}
-		}
+		// CDB is done
+		table->cdb.data = 0;
+		table->cdb.busy = 0;
+		table->cdb.tag = 0;
 	}
+}
 
-	for (int i = 0; i < config.divReserves; i++)
-	{
-		st = &addTable.stations[i];
-		if (st->executeCount >= config.divDelay)
-		{
-			if (CDBDiv.busy == 0)
-			{
-				// Using this bus - busy
-				CDBDiv.busy = 1;
-				// Filling the data 
-				CDBDiv.data = st->Vj / st->Vk;
+void Write()
+{
+	// Add table
+	writeTable(&addTable);
+	// Mul Table
+	writeTable(&mulTable);
+	// Div Table
+	writeTable(&divTable);
+}
 
-				// Loading the tag
-				CDBDiv.tag = i;
-				CDBDiv.tag <<= 3;
-				CDBDiv.tag += st->opcode;
-			}
-		}
-	}
+void LogTomasulo(const char* traceInstrPath, const char* traceCDBPath)
+{
+	writeTraceInstr(traceInstrPath, traceLogInstr);
+	writeTraceCDB(traceCDBPath, traceLogCDB);
 }
 
 void foo()
 {
-	int count = 100;
-	while (count != 0)
-	{
-		Fetch();
-		Issue();
-		Execute();
-		Write();
-		cycles++;
-		count--;
-	}
-	for (int i = 0; i < 16; i++)
+
+	for (int i = 0; i < LEN_REGISTERS; i++)
 	{
 		printf("F%d: %f\n", i, regs.F[i]);
 	}
+	LogTomasulo("traceinst.txt","tracecdb.txt");
 }
