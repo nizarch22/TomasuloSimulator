@@ -202,7 +202,7 @@ void writeTraceCDB(const char* traceCDBPath, TraceCDB* traceLogCDB)
 		if (i != 0)
 			fprintf(fp, "\n");
 
-		fprintf(fp, "%d\t%d\t%s\t%d\t%s%d", tl.cycleWriteCDB, tl.pc, prefix[(opcode - 2)], tl.data, prefix[(opcode - 2)], num);
+		fprintf(fp, "%d\t%d\t%s\t%f\t%s%d", tl.cycleWriteCDB, tl.pc, prefix[(opcode - 2)], tl.data, prefix[(opcode - 2)], num);
 	}
 	fclose(fp);
 }

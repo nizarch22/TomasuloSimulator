@@ -35,7 +35,7 @@ typedef struct TraceInstr
 }TraceInstr;
 typedef struct TraceCDB
 {
-	int data;
+	float data;
 	unsigned int cycleWriteCDB;
 	unsigned int pc;
 	unsigned int tag; //tag(Instr),cdbname(CDB)

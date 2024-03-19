@@ -160,7 +160,7 @@ void writeTable(Table* table)
 
 				// Logging - CDB
 				traceLogCDB[traceIndexCDB].cycleWriteCDB = cycles;
-				traceLogCDB[traceIndexCDB].data = (int)table->cdb.data;
+				traceLogCDB[traceIndexCDB].data = table->cdb.data;
 				traceLogCDB[traceIndexCDB].pc = traceLogInstr[st->traceIndexInstr].pc;
 				traceLogCDB[traceIndexCDB].tag = table->cdb.tag;
 				traceIndexCDB++;
@@ -204,7 +204,7 @@ void writeTable(Table* table)
 			// update register
 			regs.F[i] = table->cdb.data;
 			regs.tag[i] = 0;
-
+			printf("Wrote. Data: %f, Reg: %d, Tag: %d\n", table->cdb.data, i, table->cdb.tag); //debug 
 			break;
 		}
 	}

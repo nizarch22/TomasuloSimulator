@@ -6,8 +6,10 @@ extern unsigned int cycles;
 extern int bHalt;
 
 
-int main(int argc, char* argv[])
+int main()//int argc, char* argv[])
 {
+	int argc = 6;
+	char* argv[] = { "sim.exe","cfg.txt","memin.txt","regout.txt","traceinst.txt","tracecdb.txt" };
 	if (argc != 6)
 	{
 		printf("Invalid inputs!\n");
