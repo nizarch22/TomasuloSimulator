@@ -86,16 +86,16 @@ QueueStation* popStation(QueueStation* current)
 	if(back!=NULL)
 		back->front = front;
 
+	// debug delete head!
 	// make sure not to delete the head
-	if (current == headStation)
+	if (current==headStation)
 	{
-		headStation = NULL;
+		headStation = current->next;
 	}
-	else
-	{
-		free(current);
-	}
+	free(current);
 	stationQSize--;
+	if (stationQSize == 0)
+		return NULL;
 	return back;
 
 }
@@ -115,6 +115,10 @@ void executeTable(Table* table)
 			{
 				traceLogInstr[st->traceIndexInstr].cycleExStart = cycles;
 				traceLogInstr[st->traceIndexInstr].cycleExEnd = cycles + table->delay - 1;
+			}
+			if (table == &divTable &&st->executeCount==20) // debug
+			{
+				printf("Reached %d div cycles!\n", st->executeCount+1);
 			}
 
 			st->executeCount++;
@@ -167,9 +171,17 @@ void writeTable(Table* table)
 
 				// Logging - Instr
 				traceLogInstr[st->traceIndexInstr].cycleWriteCDB = cycles;
+
+				//debug
+				printf("Calculated. OP: %d. Vj: %f, Vk: %f. Result: %f, Reg: %d, Tag: %d\n", st->opcode, st->Vj, st->Vk, table->cdb.data, 0, table->cdb.tag); //debug 
 			}
 			break;
 		}
+	}
+	// debug
+	if (table->cdb.tag == 13)
+	{
+		printf("Show time\n");
 	}
 
 	//Add - write Vjk to issued stations waiting for Vjk
@@ -185,15 +197,15 @@ void writeTable(Table* table)
 			st->Vj = table->cdb.data;
 			temp = popStation(temp);
 			st->Qj = 0;
+			continue;
 		}
 		if (st->Qk == table->cdb.tag)
 		{
 			st->Vk = table->cdb.data;
 			temp = popStation(temp);
 			st->Qk = 0;
+			continue;
 		}
-		if (temp == NULL)
-			break;
 		temp = temp->next;
 	}
 	//Add - write to register evaluator. And empty the stations (+the CDB) - as we are done with them.
@@ -400,7 +412,9 @@ void Issue()
 		}
 		if (temp == NULL)
 			break;
-
+		// debug
+		if (head->cycleFetch == 1)
+			printf("");
 		if (temp->freeStationCount == 0 || temp->freeUnitCount==0)
 			break;
 		for (unsigned int i = 0; i < temp->len;i++)
