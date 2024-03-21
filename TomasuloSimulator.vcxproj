@@ -146,6 +146,7 @@
   <ItemGroup>
     <Text Include="cfg.txt" />
     <Text Include="memin.txt" />
+    <Text Include="regout.txt" />
     <Text Include="tracecdb.txt" />
     <Text Include="traceinst.txt" />
   </ItemGroup>

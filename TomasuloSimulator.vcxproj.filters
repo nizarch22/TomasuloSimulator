@@ -38,5 +38,6 @@
     <Text Include="cfg.txt" />
     <Text Include="tracecdb.txt" />
     <Text Include="traceinst.txt" />
+    <Text Include="regout.txt" />
   </ItemGroup>
 </Project>
