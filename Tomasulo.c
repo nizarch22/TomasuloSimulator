@@ -78,7 +78,7 @@ QueueStation* popStation(QueueStation* current)
 {
 	if (current == NULL)
 		return NULL;
-	// connect front and back
+	// connect front and back, as we are removing 'current' which is situated between front and back.
 	QueueStation* front = current->front;
 	QueueStation* back = current->next;
 	if(front!=NULL)
@@ -86,14 +86,14 @@ QueueStation* popStation(QueueStation* current)
 	if(back!=NULL)
 		back->front = front;
 
-	// debug delete head!
-	// make sure not to delete the head
+	// making sure the head changes location when we pop it.
 	if (current==headStation)
 	{
 		headStation = current->next;
 	}
 	free(current);
 	stationQSize--;
+	// ensure that the returned value will be NULL.
 	if (stationQSize == 0)
 		return NULL;
 	return back;
@@ -116,11 +116,6 @@ void executeTable(Table* table)
 				traceLogInstr[st->traceIndexInstr].cycleExStart = cycles;
 				traceLogInstr[st->traceIndexInstr].cycleExEnd = cycles + table->delay - 1;
 			}
-			if (table == &divTable &&st->executeCount==20) // debug
-			{
-				printf("Reached %d div cycles!\n", st->executeCount+1);
-			}
-
 			st->executeCount++;
 		}
 	}
@@ -171,17 +166,9 @@ void writeTable(Table* table)
 
 				// Logging - Instr
 				traceLogInstr[st->traceIndexInstr].cycleWriteCDB = cycles;
-
-				//debug
-				printf("Calculated. OP: %d. Vj: %f, Vk: %f. Result: %f, Reg: %d, Tag: %d\n", st->opcode, st->Vj, st->Vk, table->cdb.data, 0, table->cdb.tag); //debug 
 			}
 			break;
 		}
-	}
-	// debug
-	if (table->cdb.tag == 13)
-	{
-		printf("Show time\n");
 	}
 
 	//Add - write Vjk to issued stations waiting for Vjk
@@ -216,7 +203,6 @@ void writeTable(Table* table)
 			// update register
 			regs.F[i] = table->cdb.data;
 			regs.tag[i] = 0;
-			printf("Wrote. Data: %f, Reg: %d, Tag: %d\n", table->cdb.data, i, table->cdb.tag); //debug 
 			break;
 		}
 	}
@@ -412,9 +398,6 @@ void Issue()
 		}
 		if (temp == NULL)
 			break;
-		// debug
-		if (head->cycleFetch == 1)
-			printf("");
 		if (temp->freeStationCount == 0 || temp->freeUnitCount==0)
 			break;
 		for (unsigned int i = 0; i < temp->len;i++)
