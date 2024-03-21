@@ -8,15 +8,15 @@ extern int bHalt;
 
 int main(int argc, char* argv[])
 {
-	//int argc = 6;
-	//char* argv[] = { "sim.exe","cfg.txt","memin.txt","regout.txt","traceinst.txt","tracecdb.txt" };
+	// checking arguments are there.
 	if (argc != 6)
 	{
-		printf("Invalid inputs!\n");
+		printf("Invalid inputs! Need 6 inputs.\n");
 		return -1;
 	}
 
-	int bInit;
+	// initializing all config and instructions. Also initializing instances specific to the Tomasulo program.
+	int bInit; // error checking variable.
 	bInit = InitTomasulo(argv[1], argv[2]);
 	if (bInit == -1)
 	{
@@ -24,6 +24,7 @@ int main(int argc, char* argv[])
 		return -1;
 	}
 
+	// Keeps running until we encounter a HALT instruction.
 	while (bHalt == 0)
 	{
 		Fetch();
@@ -33,8 +34,10 @@ int main(int argc, char* argv[])
 		cycles++;
 	}
 
+	// Release memory
 	DestroyTomasulo();
 
+	// log instructions and CDB events.
 	LogTomasulo(argv[3],argv[4], argv[5]);
 
 }

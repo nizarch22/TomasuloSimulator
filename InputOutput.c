@@ -22,7 +22,6 @@ int readFile(const char* dataPath, char fileStr[LEN_FILE])
 	fileStr[count] = '\0';
 	return 0;
 }
-
 void hexToNum(char* input)
 {
 	if (*input >= 48 && *input <= 57)
@@ -31,6 +30,22 @@ void hexToNum(char* input)
 		*input -= 55;
 	if (*input >= 97 && *input <= 102)
 		*input -= 87;
+}
+
+// This function maps config file variables to the indexing specified by the Configuration struct. Returns -1 in case of error.
+int getDictionaryIndex(char* value, char* dict[512], int size)
+{
+	
+	if (value == NULL)
+		return -1;
+	for (int i = 0; i < size; i++)
+	{
+		if (!strcmp(value, dict[i]))
+		{
+			return i;
+		}
+	}
+	return -1;
 }
 
 int createInstructions(const char* meminPath)
@@ -64,21 +79,6 @@ int createInstructions(const char* meminPath)
 	}
 	return 0;
 }
-
-int getDictionaryIndex(char* value, char* dict[512], int size)
-{
-	if (value == NULL)
-		return -1;
-	for (int i = 0; i < size; i++)
-	{
-		if (!strcmp(value, dict[i]))
-		{
-			return i;
-		}
-	}
-	return -1;
-}
-
 int initConfig(const char* cfgPath)
 {
 	char fileStr[LEN_CFG];
@@ -136,7 +136,6 @@ int initConfig(const char* cfgPath)
 	memcpy(&config, configuration, sizeof(Configuration));
 	return 0;
 }
-
 void writeTraceRegout(const char* regoutPath, float* F)
 {
 	FILE* fp;
@@ -148,7 +147,6 @@ void writeTraceRegout(const char* regoutPath, float* F)
 	fprintf(fp, "%f", F[LEN_REGISTERS-1]);
 	fclose(fp);
 }
-
 void writeTraceInstr(const char* traceInstrPath, TraceInstr* traceLogInstr)
 {
 	FILE* fp;
@@ -178,7 +176,6 @@ void writeTraceInstr(const char* traceInstrPath, TraceInstr* traceLogInstr)
 	}
 	fclose(fp);
 }
-
 void writeTraceCDB(const char* traceCDBPath, TraceCDB* traceLogCDB)
 {
 	FILE* fp;

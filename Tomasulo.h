@@ -49,7 +49,7 @@ typedef struct Queue
 	Instruction instr;
 	struct Queue* next;
 }Queue;
-typedef struct QueueStation
+typedef struct QueueStation // Queue for stations awaiting Vjk values.
 {
 	Station* station;
 	struct QueueStation* front;
@@ -63,13 +63,13 @@ Table divTable;
 Registers regs;
 int bHalt;
 // Fetching
-Queue* tail;
-Queue* head;
+Queue* tail; // instruction queue tail
+Queue* head; // instruction queue head
 unsigned int instrQSize;
-unsigned int currentInstr;
+unsigned int currentInstr; // index of instruction(s) being loaded into instruction queue.
 //Execution
-QueueStation* headStation;
-QueueStation* tailStation;
+QueueStation* headStation; // station queue head
+QueueStation* tailStation; // station queue tail
 unsigned int stationQSize;
 
 //functions
@@ -82,9 +82,9 @@ void Write();
 
 // Output handling
 //structs
-void LogTomasulo(const char* regoutPath, const char* traceInstrPath, const char* traceCDBPath);
+void LogTomasulo(const char* regoutPath, const char* traceInstrPath, const char* traceCDBPath); // uses InputOutput.h logging functions to write all instructions/CDB events executed.
 //global variables
 TraceInstr traceLogInstr[LEN_INSTRUCTIONS];
 TraceCDB traceLogCDB[LEN_INSTRUCTIONS];
-unsigned int traceIndexInstr;
-unsigned int traceIndexCDB;
+unsigned int traceIndexInstr; // tracks instruction that started logging
+unsigned int traceIndexCDB; // index of CDB write event.

@@ -106,15 +106,16 @@ void executeTable(Table* table)
 	for (unsigned int i = 0; i < table->len; i++)
 	{
 		st = &(table->stations[i]);
+		// Do not execute at the same cycle as the issue
 		if (cycles == st->cycleIssue)
 			continue;
 		if (st->busy == 1 && st->Qj == 0 && st->Qk == 0)
 		{
-			//Logging - instr
+			//Logging - instr.
 			if (st->executeCount == 0)
 			{
 				traceLogInstr[st->traceIndexInstr].cycleExStart = cycles;
-				traceLogInstr[st->traceIndexInstr].cycleExEnd = cycles + table->delay - 1;
+				traceLogInstr[st->traceIndexInstr].cycleExEnd = cycles + table->delay - 1; // we already know when the execute will finish.
 			}
 			st->executeCount++;
 		}
@@ -310,6 +311,7 @@ void DestroyTomasulo()
 		head = head->next;
 		free(temp);
 	}
+
 	// free station queue - note that it is supposed to be empty upon successful completion.
 	QueueStation* temp1;
 	while (headStation != NULL)
@@ -366,7 +368,7 @@ void Issue()
 	unsigned int tag;
 	unsigned int pc;
 
-	//search for available station
+	//search for available station to issue
 	for (int j = 0; j < 2; j++)
 	{
 		if (head == NULL)
@@ -378,6 +380,8 @@ void Issue()
 		// we do not wish to issue anymore after HALT
 		if (head->instr.op == HALT)
 			return;
+
+		// finding our table type based on the opcode
 		stationType = head->instr.op;
 		switch (stationType)
 		{
@@ -448,6 +452,8 @@ void Issue()
 
 			traceIndexInstr++;
 
+			// resetting temp (checking for invalid OP)
+			temp = NULL;
 			break;
 		}
 	}

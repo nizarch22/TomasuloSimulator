@@ -46,8 +46,8 @@ Configuration config;
 
 
 // functions
-int createInstructions(const char* meminPath);
-int initConfig(const char* cfgPath);
-void writeTraceRegout(const char* regoutPath, float* F);
-void writeTraceInstr(const char* traceInstrPath, TraceInstr* traceLogInstr);
-void writeTraceCDB(const char* traceCDBPath, TraceCDB* traceLogCDB);
+int createInstructions(const char* meminPath); // loads HEX instructions and parses them into numeric form.
+int initConfig(const char* cfgPath); // loads and matches configuration variables of the Tomasulo program.
+void writeTraceRegout(const char* regoutPath, float* F); // log entire register values.
+void writeTraceInstr(const char* traceInstrPath, TraceInstr* traceLogInstr); // log every instruction executed and finished.
+void writeTraceCDB(const char* traceCDBPath, TraceCDB* traceLogCDB); // log every CDB write event.
