@@ -300,7 +300,6 @@ int InitTomasulo(const char* cfgPath, const char* meminPath)
 
 	return 0;
 }
-
 void DestroyTomasulo()
 {
 	//freeing stations of the tables
@@ -363,7 +362,6 @@ void Fetch()
 		currentInstr++;
 	}
 }
-
 void Issue()
 {	
 	int stationType;
@@ -448,7 +446,7 @@ void Issue()
 
 			// declaring this station as busy (not free) makes our freeStationCount drop.
 			temp->freeStationCount--;
-			temp->freeUnitCount--;
+
 			// Logging - instr
 			traceLogInstr[traceIndexInstr].cycleIssue = cycles;
 			traceLogInstr[traceIndexInstr].instr = instr;
@@ -463,7 +461,6 @@ void Issue()
 		}
 	}
 }
-
 void Execute()
 {
 	// Execute Add
@@ -473,7 +470,6 @@ void Execute()
 	// Execute Div
 	executeTable(&divTable);
 }
-
 void Write()
 {
 	// Add table
@@ -483,7 +479,6 @@ void Write()
 	// Div Table
 	writeTable(&divTable);
 }
-
 void LogTomasulo(const char* regoutPath,const char* traceInstrPath, const char* traceCDBPath)
 {
 	writeTraceRegout(regoutPath, regs.F);
