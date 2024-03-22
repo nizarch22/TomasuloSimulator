@@ -114,6 +114,11 @@ void executeTable(Table* table)
 			//Logging - instr.
 			if (st->executeCount == 0)
 			{
+				// We do not wish to start execution if there are no free units
+				if (table->freeUnitCount == 0)
+					continue;
+
+				table->freeUnitCount--;
 				traceLogInstr[st->traceIndexInstr].cycleExStart = cycles;
 				traceLogInstr[st->traceIndexInstr].cycleExEnd = cycles + table->delay - 1; // we already know when the execute will finish.
 			}
@@ -402,7 +407,7 @@ void Issue()
 		}
 		if (temp == NULL)
 			break;
-		if (temp->freeStationCount == 0 || temp->freeUnitCount==0)
+		if (temp->freeStationCount == 0)
 			break;
 		for (unsigned int i = 0; i < temp->len;i++)
 		{
